@@ -1,5 +1,5 @@
 __author__ = 'nikita'
-from random import randint
+from numpy.random import randint
 from numpy import log2
 from tools.validation import check_type
 
@@ -41,7 +41,7 @@ def is_prime(n):
 
     k = int(log2(n)) + 1
     for i in range(0, k):
-        a = randint(2, n - 2)
+        a = randint(2, n - 1)
 
         x = pow(a, d, n)    # x = (a**d) % n
 

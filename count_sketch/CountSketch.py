@@ -39,11 +39,11 @@ class CountSketch:
     def __init__(self, eps, delta, n):
         """
 
-        :param eps:
+        :param eps:     Scaling error coefficient parameter.
         :type eps:      float
-        :param delta:
+        :param delta:   Probability error parameter.
         :type delta:    float
-        :param n:
+        :param n:       Length of vector x.
         :type n:        int
 
         """
@@ -55,10 +55,10 @@ class CountSketch:
         self.n = n
 
         self.d = int(log(1 / delta)) + 1
-        self.w = int(3 / eps**2) + 1
+        self.w = min(int(3 / eps**2) + 1, n)
 
-        self.h = np.array([pick_k_ind_hash_function(n, self.w, 2)] * self.d)
-        self.g = np.array([pick_k_ind_hash_function(n, 2, 2)] * self.d)
+        self.h = np.array([pick_k_ind_hash_function(n, self.w, 2) for i in range(0, self.d)])
+        self.g = np.array([pick_k_ind_hash_function(n, 2, 2) for i in range(0, self.d)])
 
         self.C = np.zeros((self.d, self.w), dtype=float)
 
@@ -86,9 +86,9 @@ class CountSketch:
     def update(self, i, Delta):
         """
 
-        :param i:
+        :param i:       Index to modify.
         :type i:        int
-        :param Delta:
+        :param Delta:   Change value.
         :type Delta:    float or int
         :return:
         :rtype:

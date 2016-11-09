@@ -21,7 +21,7 @@ def check_type(var, *types):
             break
 
     if not success:
-        raise TypeError('Variable must be ', str(types), ', found', type(var))
+        raise TypeError('Variable must be ', types, ', found', type(var))
 
 
 def check_in_range(a, b, i):

@@ -1,6 +1,6 @@
 __author__ = 'nikita'
 from tools.primality_test import get_next_prime
-from random import randint
+from numpy.random import randint
 from tools.validation import check_type
 import numpy as np
 
@@ -35,13 +35,11 @@ def pick_k_ind_hash_function(n, w, k):
     check_type(n, int)
     check_type(w, int)
     check_type(k, int)
-    if w > n:
-        raise ValueError('w must not be greater than n')
 
-    p = get_next_prime(n)
+    p = get_next_prime(max(n, w))
 
-    a = np.array([randint(0, p - 1)]*k)
-    a[0] = randint(1, p - 1)
+    a = np.array([randint(0, p) for i in range(0, k)])
+    a[0] = randint(1, p)
 
     def h(x):
         return (sum((a[i] * pow(x, k - i - 1, p)) % p for i in range(0, k)) % p) % w
