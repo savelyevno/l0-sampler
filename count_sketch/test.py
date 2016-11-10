@@ -1,11 +1,12 @@
 __author__ = 'nikita'
 from count_sketch.CountSketch import CountSketch
+from tools.Timer import Timer
 import numpy as np
 
 
-n = int(1e8)
+n = int(1e5)
 number_of_tests = int(1e0)
-length_of_stream = int(1e8)
+length_of_stream = int(1e3)
 amplitude = 10
 
 
@@ -16,11 +17,14 @@ error_count = 0
 
 print_sketch_info = True
 
-for t in range(0, number_of_tests):
+timer = Timer()
+timer.start()
 
-    x = np.array([0]*n)
+for t in range(number_of_tests):
 
-    sketch = CountSketch(eps, delta, n)
+    x = np.zeros(n)
+
+    sketch = CountSketch(eps, delta, n, False)
     if print_sketch_info:
         print_sketch_info = False
         print('sketch info: d =', sketch.d, 'w =', sketch.w)
@@ -32,11 +36,12 @@ for t in range(0, number_of_tests):
         x[index] += value
         sketch.update(index, value)
 
-    x_ = sketch.recover()
+    # x_ = sketch.recover()
     l2_norm = np.linalg.norm(x)
     for i in range(0, n):
-        if abs(x[i] - x_[i]) > eps*l2_norm:
+        if abs(x[i] - sketch.recover_by_index(i)) > eps*l2_norm:
             error_count += 1
 
 print('expected error probability:', delta)
 print('actual error frequency:', error_count / (number_of_tests*n))
+print('running time:', timer.stop())

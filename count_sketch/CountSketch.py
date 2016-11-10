@@ -36,7 +36,7 @@ class CountSketch:
             https://courses.engr.illinois.edu/cs598csc/fa2014/Lectures/lecture_6.pdf
 
     """
-    def __init__(self, eps, delta, n):
+    def __init__(self, eps, delta, n, validate=True):
         """
 
         :param eps:     Scaling error coefficient parameter.
@@ -52,15 +52,16 @@ class CountSketch:
         check_type(delta, float)
         check_type(n, int)
 
+        self.validate = validate
         self.n = n
 
         self.d = int(log(1 / delta)) + 1
         self.w = min(int(3 / eps**2) + 1, n)
 
-        self.h = np.array([pick_k_ind_hash_function(n, self.w, 2) for i in range(0, self.d)])
-        self.g = np.array([pick_k_ind_hash_function(n, 2, 2) for i in range(0, self.d)])
+        self.h = [pick_k_ind_hash_function(n, self.w, 2) for i in range(0, self.d)]
+        self.g = [pick_k_ind_hash_function(n, 2, 2) for i in range(0, self.d)]
 
-        self.C = np.zeros((self.d, self.w), dtype=float)
+        self.C = np.zeros((self.d, self.w), dtype=int)
 
     def modified_g(self, l, i):
         """
@@ -73,10 +74,11 @@ class CountSketch:
         :rtype:     int
         """
 
-        check_type(l, int)
-        check_type(i, int)
-        check_in_range(0, self.d - 1, l)
-        check_in_range(0, self.n - 1, i)
+        if self.validate:
+            check_type(l, int)
+            check_type(i, int)
+            check_in_range(0, self.d - 1, l)
+            check_in_range(0, self.n - 1, i)
 
         res = self.g[l](i)
         if res == 0:
@@ -89,16 +91,17 @@ class CountSketch:
         :param i:       Index to modify.
         :type i:        int
         :param Delta:   Change value.
-        :type Delta:    float or int
+        :type Delta:    int
         :return:
         :rtype:
 
         Time Complexity O(d)
         """
 
-        check_type(i, int)
-        check_type(Delta, float, int)
-        check_in_range(0, self.n - 1, i)
+        if self.validate:
+            check_type(i, int)
+            check_type(Delta, int)
+            check_in_range(0, self.n - 1, i)
 
         for l in range(0, self.d):
             self.C[l][self.h[l](i)] += self.modified_g(l, i) * Delta
@@ -109,27 +112,30 @@ class CountSketch:
         :param i:   Index of recovering element.
         :type i:    int
         :return:    Approximated value of x_i.
-        :rtype:     float
+        :rtype:     int
 
         Time Complexity O(d * log(d))
         """
 
-        check_type(i, int)
-        check_in_range(0, self.n - 1, i)
+        if self.validate:
+            check_type(i, int)
+            check_in_range(0, self.n - 1, i)
 
-        estimates = np.sort(np.array([self.modified_g(l, i) * self.C[l][self.h[l](i)] for l in range(0, self.d)]))
-
-        return np.median(estimates)
+        return int(
+            np.median([
+                             self.modified_g(l, i) * self.C[l][self.h[l](i)] for l in range(0, self.d)
+                             ]
+                      )
+        )
 
     def recover(self):
         """
 
-        :return: x
+        :return: Approximation of vector x.
         :rtype: np.array
 
         Time Complexity O(n * d * log(d))
         """
 
-        x = np.array([self.recover_by_index(i) for i in range(0, self.n)])
+        return np.array([self.recover_by_index(i) for i in range(0, self.n)])
 
-        return x
