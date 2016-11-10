@@ -1,6 +1,6 @@
 __author__ = 'nikita'
 from tools.hash_function import pick_k_ind_hash_function
-from tools.validation import *
+from tools.validation import check_in_range, check_type
 from numpy import log
 import numpy as np
 
@@ -55,8 +55,8 @@ class CountSketch:
         self.validate = validate
         self.n = n
 
-        self.d = int(log(1 / delta)) + 1
-        self.w = min(int(3 / eps**2) + 1, n)
+        self.d = int(log(1 / delta))
+        self.w = min(int(3 / eps**2), n)
 
         self.h = [pick_k_ind_hash_function(n, self.w, 2) for i in range(0, self.d)]
         self.g = [pick_k_ind_hash_function(n, 2, 2) for i in range(0, self.d)]
