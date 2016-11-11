@@ -17,8 +17,7 @@ class OneSparseRecoverer:
             iota = sum(i*a_i)
             fi = sum(a_i)
             tau = sum(a_i * z_i**i) mod p.
-        If tau = fi * z**(iota / fi) returns the only containing a_i,
-        otherwise return FAIL.
+        If tau = fi * z**(iota / fi) returns the only containing a_i.
 
         If vector contains only a single non-zero element,
         returns its position and value. Otherwise with probability
@@ -65,7 +64,7 @@ class OneSparseRecoverer:
 
         self.iota += (i + 1)*Delta
         self.fi += Delta
-        self.tau += Delta * pow(self.z, i + 1, self.p)
+        self.tau = (self.tau + Delta * pow(self.z, i + 1, self.p)) % self.p
 
     def recover(self):
         """
@@ -74,12 +73,16 @@ class OneSparseRecoverer:
         Time Complexity
             O(log(n)**3)
 
-        :return:    Some a_i or None.
-        :rtype:     (int, int) or None
+        :return:    False if a_i is empty,
+                    True if it contains more than one non-zero element
+                    a_i, otherwise.
+        :rtype:     (int, int) or bool
         """
 
-        if self.iota % self.fi == 0 and\
-           self.tau == (self.fi * pow(self.z, self.iota/self.fi, self.p)) % self.p:
-            return self.iota / self.fi - 1, self.fi
+        if self.fi == 0:
+            return False
+        elif self.iota % self.fi == 0 and self.iota / self.fi > 0 and \
+                self.tau == self.fi * pow(self.z, int(self.iota / self.fi), self.p) % self.p:
+            return int(self.iota / self.fi) - 1, self.fi
         else:
-            return None
+            return True

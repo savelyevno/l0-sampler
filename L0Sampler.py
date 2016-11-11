@@ -2,6 +2,7 @@ __author__ = 'nikita'
 from sparse_recovery.SparseRecoverer import SparseRecoverer
 from tools.hash_function import pick_k_ind_hash_function
 from numpy import log, log2, ceil
+from numpy.random import randint, choice
 from tools.validation import check_in_range, check_type
 
 
@@ -39,17 +40,19 @@ class L0Sampler:
         """
 
         self.n = n
-        self.rows = int(ceil(log2(n)))
+        self.levels = int(ceil(log2(n)))
 
         self.eps = 1/n
         self.delta = 1/n
 
+        self.p = 1
+
         self.sparse_degree = int(ceil(log(1 / self.eps) + log(1 / self.delta)))
         self.k = int(self.sparse_degree / 2)
 
-        self.hash_function = pick_k_ind_hash_function(n, n ** 3, self.k)
+        self.hash_function = pick_k_ind_hash_function(n, n**self.p, self.k)
 
-        self.recoverers = [SparseRecoverer(n, self.sparse_degree, self.delta) for i in range(self.rows)]
+        self.recoverers = [SparseRecoverer(n, self.sparse_degree, self.delta) for i in range(self.levels)]
         
     def update(self, i, Delta):
         """
@@ -70,9 +73,38 @@ class L0Sampler:
         check_type(Delta, int)
         check_in_range(0, self.n - 1, i)
 
-        for l in range(self.rows):
-            if pow(self.n, 3) << l >= self.hash_function(l):
+        for l in range(self.levels):
+            if (self.n**self.p) >> l > self.hash_function(i):
                 self.recoverers[l].update(i, Delta)
+
+    def get_sample_wrong(self):
+        """
+            Get l0-sample.
+
+            Time Complexity
+                O(log(n)**6)
+
+        :return:    Return tuple (i, a_i) or FAIL.
+        :rtype:     None or (int, int)
+        """
+
+        for l in range(self.levels):
+            recover_result = self.recoverers[l].recover()
+
+            if isinstance(recover_result, dict):
+                arg_min = -1
+                res_min = pow(self.n, self.p)
+
+                for key in recover_result:
+                    hash_value = self.hash_function(key)
+
+                    if hash_value < res_min:
+                        res_min = hash_value
+                        arg_min = key
+
+                return arg_min, recover_result[arg_min]
+
+        return None
 
     def get_sample(self):
         """
@@ -85,20 +117,32 @@ class L0Sampler:
         :rtype:     None or (int, int)
         """
 
-        for l in range(self.rows):
+        result = {}
+
+        for l in range(self.levels):
             recover_result = self.recoverers[l].recover()
 
             if isinstance(recover_result, dict):
-                arg_min = 0
-                res_min = pow(self.n, 3)
+                key = choice(list(recover_result.keys()))
+                result[key] = recover_result[key]
 
-                for key in recover_result:
-                    hash_value = self.hash_function(key)
-
-                    if hash_value < res_min:
-                        res_min = hash_value
-                        arg_min = key
-
-                return arg_min, recover_result[arg_min]
-
+        if len(result) > 0:
+            key = choice(list(result.keys()))
+            return key, result[key]
         return None
+
+    def get_info(self):
+        """
+
+        :return:    Object info
+        :rtype:     dict
+        """
+        result = {
+            'l0-sampler levels': self.levels,
+            'l0-sampler s': self.sparse_degree,
+            'l0-sampler k': self.k
+        }
+
+        result = {**result, **self.recoverers[0].get_info()}
+
+        return result

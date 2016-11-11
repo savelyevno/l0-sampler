@@ -1,7 +1,7 @@
 __author__ = 'nikita'
 from sparse_recovery.OneSparseRecoverer import OneSparseRecoverer
 from tools.hash_function import pick_k_ind_hash_function
-from numpy import log
+from numpy import log, zeros
 from tools.validation import check_in_range, check_type
 
 
@@ -62,6 +62,8 @@ class SparseRecoverer:
 
         self.R = [[OneSparseRecoverer(self.n) for j in range(self.columns)] for i in range(self.rows)]
 
+        self.sum_of_vector = 0
+
     def update(self, i, Delta):
         """
             Iterates through rows and updates corresponding cells.
@@ -77,6 +79,8 @@ class SparseRecoverer:
         :rtype:         None
         """
 
+        self.sum_of_vector += Delta
+
         for l in range(self.rows):
             self.R[l][self.hash_function[l](i)].update(i, Delta)
 
@@ -88,9 +92,10 @@ class SparseRecoverer:
         Time Complexity
             O(s * log(s / delta) * log(n)**3)
 
-        :return:    If resulting dictionary contains more than s elements returns FAIL,
-            otherwise return this dictionary.
-        :rtype:     dict or None
+        :return:    If resulting dictionary is empty return False, if it contains
+        more than s elements or sum of retrieved vector != correct sum of the vector
+        returns True, otherwise return this dictionary.
+        :rtype:     dict or bool
         """
 
         result = {}
@@ -98,10 +103,27 @@ class SparseRecoverer:
             for j in range(self.columns):
                 one_sparse_recovery_result = self.R[i][j].recover()
 
-                if one_sparse_recovery_result is not None:
+                if not isinstance(one_sparse_recovery_result, bool):
                     result[one_sparse_recovery_result[0]] = one_sparse_recovery_result[1]
 
-        if len(result) > self.sparse_degree:
-            return None
+        sum_of_recovered_vector = sum(result.values())
+        if len(result) == 0:
+            return False
+        elif len(result) > self.sparse_degree or sum_of_recovered_vector != self.sum_of_vector:
+            return True
         else:
             return result
+
+    def get_info(self):
+        """
+
+        :return:    Object info.
+        :rtype:     dict
+        """
+
+        result = {
+            's-sparse recoverer rows': self.rows,
+            's-sparse recoverer columns': self.columns
+        }
+
+        return result
