@@ -40,7 +40,7 @@ def is_prime(n):
         d >>= 1
 
     k = int(log2(n)) + 1
-    for i in range(0, k):
+    for i in range(k):
         a = randint(2, n - 1)
 
         x = pow(a, d, n)    # x = (a**d) % n

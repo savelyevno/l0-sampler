@@ -58,8 +58,8 @@ class CountSketch:
         self.d = int(log(1 / delta))
         self.w = min(int(3 / eps**2), n)
 
-        self.h = [pick_k_ind_hash_function(n, self.w, 2) for i in range(0, self.d)]
-        self.g = [pick_k_ind_hash_function(n, 2, 2) for i in range(0, self.d)]
+        self.h = [pick_k_ind_hash_function(n, self.w, 2) for i in range(self.d)]
+        self.g = [pick_k_ind_hash_function(n, 2, 2) for i in range(self.d)]
 
         self.C = np.zeros((self.d, self.w), dtype=int)
 
@@ -77,8 +77,8 @@ class CountSketch:
         if self.validate:
             check_type(l, int)
             check_type(i, int)
-            check_in_range(0, self.d - 1, l)
-            check_in_range(0, self.n - 1, i)
+            check_in_range(self.d - 1, l)
+            check_in_range(self.n - 1, i)
 
         res = self.g[l](i)
         if res == 0:
@@ -101,9 +101,9 @@ class CountSketch:
         if self.validate:
             check_type(i, int)
             check_type(Delta, int)
-            check_in_range(0, self.n - 1, i)
+            check_in_range(self.n - 1, i)
 
-        for l in range(0, self.d):
+        for l in range(self.d):
             self.C[l][self.h[l](i)] += self.modified_g(l, i) * Delta
 
     def recover_by_index(self, i):
@@ -119,11 +119,11 @@ class CountSketch:
 
         if self.validate:
             check_type(i, int)
-            check_in_range(0, self.n - 1, i)
+            check_in_range(self.n - 1, i)
 
         return int(
             np.median([
-                             self.modified_g(l, i) * self.C[l][self.h[l](i)] for l in range(0, self.d)
+                             self.modified_g(l, i) * self.C[l][self.h[l](i)] for l in range(self.d)
                              ]
                       )
         )
@@ -137,5 +137,5 @@ class CountSketch:
         Time Complexity O(n * d * log(d))
         """
 
-        return np.array([self.recover_by_index(i) for i in range(0, self.n)])
+        return np.array([self.recover_by_index(i) for i in range(self.n)])
 

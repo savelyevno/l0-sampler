@@ -7,7 +7,7 @@ import numpy as np
 
 def pick_k_ind_hash_function(n, w, k):
     """
-        Picks random hash function h:{0, ..., n - 1}-->{0, ..., w - 1}, w <= n
+        Picks random hash function h:{0, ..., n - 1}-->{0, ..., w - 1}
         from a family of k-independent hash functions.
 
     :param n:   Defines domain of resulting hash function.
@@ -24,7 +24,7 @@ def pick_k_ind_hash_function(n, w, k):
         coefficients a from Z_p, where a[0] != 0. Let
         h(x) = a[0] * x**(k - 1) + ... + a[k - 2] * x + a[k - 1] mod p mod w.
 
-    Complexity
+    Time complexity
         Constructed hash function's complexity is O(k * log(x)**2).
 
     References
@@ -38,13 +38,13 @@ def pick_k_ind_hash_function(n, w, k):
 
     p = get_next_prime(max(n, w))
 
-    a = np.array([randint(0, p) for i in range(0, k)])
+    a = np.array([randint(0, p) for i in range(k)])
     a[0] = randint(1, p)
 
     def h(x):
         res = 0
         pow_x = 1
-        for i in range(0, k):
+        for i in range(k):
             res = (res + pow_x * a[k - i - 1]) % p
             pow_x = (pow_x * x) % p
         return res % w

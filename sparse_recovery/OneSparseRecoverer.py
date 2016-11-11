@@ -8,7 +8,9 @@ class OneSparseRecoverer:
         Exact 1-sparse recovery data structure.
 
         This structure contains sketched info about some int vector a
-        of length n, allowing to make linear updates on it.
+        of length n, allowing to make linear updates on it. If a contains
+        only single non-zero element, this data structure allows to
+        recover it exactly with high probability.
 
         We pick some large prime p and random z in Z_p,
         then maintain several counters
@@ -21,6 +23,9 @@ class OneSparseRecoverer:
         If vector contains only a single non-zero element,
         returns its position and value. Otherwise with probability
         greater then 1 - n/p returns that a is > 1-sparse.
+
+        Space Complexity
+            O(log(n))
 
         References:
             Cormode, Graham, and Donatella Firmani. "On unifying the space of l0-sampling algorithms."
@@ -45,24 +50,32 @@ class OneSparseRecoverer:
 
     def update(self, i, Delta):
         """
+            Update of type a_i += Delta.
+
+        Time Complexity
+            O(log(n)**3)
 
         :param i:       Index of an update.
         :type i:        int
         :param Delta:   Value of an update.
         :type Delta:    int
-        :return:        Some a_i or None.
-        :rtype:         (int, int) or None
+        :return:
+        :rtype:         None
         """
 
         self.iota += (i + 1)*Delta
         self.fi += Delta
         self.tau += Delta * pow(self.z, i + 1, self.p)
 
-    def get(self):
+    def recover(self):
         """
+            Attempt to recover an element.
 
-        :return:
-        :rtype:
+        Time Complexity
+            O(log(n)**3)
+
+        :return:    Some a_i or None.
+        :rtype:     (int, int) or None
         """
 
         if self.iota % self.fi == 0 and\
