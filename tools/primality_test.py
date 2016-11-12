@@ -1,6 +1,5 @@
-__author__ = 'nikita'
-from numpy.random import randint
-from numpy import log2
+from random import randint
+from math import log2
 from tools.validation import check_type
 
 
@@ -70,9 +69,9 @@ def get_next_prime(n):
     """
         Finds smallest prime greater than n.
 
-    :param n:
+    :param n:   Lower bound of value of prime.
     :type n:    int or float
-    :return:    p
+    :return:    Prime p >= n.
     :rtype:     int
 
     Time complexity

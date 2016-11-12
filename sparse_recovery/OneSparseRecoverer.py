@@ -1,6 +1,5 @@
-__author__ = 'nikita'
 from tools.primality_test import get_next_prime
-from numpy.random import randint
+from random import randint
 
 
 class OneSparseRecoverer:
@@ -35,9 +34,14 @@ class OneSparseRecoverer:
     def __init__(self, n):
         """
 
+        Time Complexity
+            O(log(n)**5)
+
         :param n:   Size of array.
         :type n:    int
         """
+
+        self.n = n
 
         self.p = get_next_prime(n*n)
 
@@ -86,3 +90,24 @@ class OneSparseRecoverer:
             return int(self.iota / self.fi) - 1, self.fi
         else:
             return True
+
+    def add(self, another_one_sparse_recoverer):
+        """
+            Combines two 1-sparse recoverers by adding them.
+
+        Time Complexity
+            O(log(n)**2)
+
+        :param another_one_sparse_recoverer:
+        :type another_one_sparse_recoverer:     OneSparseRecoverer
+        :return:
+        :rtype:     None
+        """
+
+        if self.z != another_one_sparse_recoverer.z or self.p != another_one_sparse_recoverer.p or\
+           self.n != another_one_sparse_recoverer.n:
+            raise ValueError('1-sparse recoverers are not compatible')
+
+        self.iota += another_one_sparse_recoverer.iota
+        self.fi += another_one_sparse_recoverer.fi
+        self.tau = (self.tau + another_one_sparse_recoverer.tau) % self.p

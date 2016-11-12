@@ -1,6 +1,3 @@
-__author__ = 'nikita'
-
-
 def check_type(var, *types):
     """
         Raises exception if var is not an instance of

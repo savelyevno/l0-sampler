@@ -1,8 +1,6 @@
-__author__ = 'nikita'
 from tools.primality_test import get_next_prime
-from numpy.random import randint
+from random import randint
 from tools.validation import check_type
-import numpy as np
 
 
 def pick_k_ind_hash_function(n, w, k):
@@ -38,7 +36,7 @@ def pick_k_ind_hash_function(n, w, k):
 
     p = get_next_prime(max(n, w))
 
-    a = np.array([randint(0, p) for i in range(k)])
+    a = [randint(0, p) for i in range(k)]
     a[0] = randint(1, p)
 
     def h(x):

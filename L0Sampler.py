@@ -1,8 +1,7 @@
-__author__ = 'nikita'
 from sparse_recovery.SparseRecoverer import SparseRecoverer
 from tools.hash_function import pick_k_ind_hash_function
-from numpy import log, log2, ceil
-from numpy.random import randint, choice
+import random
+from math import log, log2, ceil
 from tools.validation import check_in_range, check_type
 
 
@@ -28,16 +27,29 @@ class L0Sampler:
 
     References:
             Cormode, Graham, and Donatella Firmani. "On unifying the space of l0-sampling algorithms."
-            Proceedings of the Meeting on Algorithm Engineering & Experiments.
-            Society for Industrial and Applied Mathematics, 2013.
             https://pdfs.semanticscholar.org/b0f3/336c82b8a9d9a70d7cf187eea3f6dbfd1cdf.pdf
     """
-    def __init__(self, n):
+    def __init__(self, n, init_seed=None):
         """
 
-        :param n:   Length of vector a.
-        :type n:    int
+        Time Complexity:
+            O(log(n)**8)
+
+        :param n:           Length of vector a.
+        :type n:            int
+        :param init_seed:   Seed for random generator to initialize data structure, optional
+
+                            This is needed for adding sketches together. We can add sketches S1 and S2
+                            only if for each level l of S1 and S2, s-sparse recoverers that are stored there
+                            have the same hash functions and 1-sparse recoverers that they consist of are
+                            initialized with the same random parameters. This holds if we initialize S1 and S2
+                            consequentially setting the seed for PRG.
+        :type init_seed:    int
         """
+
+        self.init_seed = init_seed
+        if init_seed is not None:
+            random.seed(init_seed)
 
         self.n = n
         self.levels = int(ceil(log2(n)))
@@ -45,12 +57,13 @@ class L0Sampler:
         self.eps = 1/n
         self.delta = 1/n
 
-        self.p = 1
+        # for more accurate distribution among levels one may want to increase this value
+        self.n_hash_power = 1
 
         self.sparse_degree = int(ceil(log(1 / self.eps) + log(1 / self.delta)))
         self.k = int(self.sparse_degree / 2)
 
-        self.hash_function = pick_k_ind_hash_function(n, n**self.p, self.k)
+        self.hash_function = pick_k_ind_hash_function(n, n ** self.n_hash_power, self.k)
 
         self.recoverers = [SparseRecoverer(n, self.sparse_degree, self.delta) for i in range(self.levels)]
         
@@ -74,12 +87,13 @@ class L0Sampler:
         check_in_range(0, self.n - 1, i)
 
         for l in range(self.levels):
-            if (self.n**self.p) >> l > self.hash_function(i):
+            if (self.n**self.n_hash_power) >> l > self.hash_function(i):
                 self.recoverers[l].update(i, Delta)
 
-    def get_sample_wrong(self):
+    def _get_sample_with_min_hash(self):
         """
             Get l0-sample.
+            (This one is described in the paper.)
 
             Time Complexity
                 O(log(n)**6)
@@ -93,7 +107,7 @@ class L0Sampler:
 
             if isinstance(recover_result, dict):
                 arg_min = -1
-                res_min = pow(self.n, self.p)
+                res_min = pow(self.n, self.n_hash_power)
 
                 for key in recover_result:
                     hash_value = self.hash_function(key)
@@ -123,15 +137,15 @@ class L0Sampler:
             recover_result = self.recoverers[l].recover()
 
             if isinstance(recover_result, dict):
-                key = choice(list(recover_result.keys()))
+                key = random.choice(list(recover_result.keys()))
                 result[key] = recover_result[key]
 
         if len(result) > 0:
-            key = choice(list(result.keys()))
+            key = random.choice(list(result.keys()))
             return key, result[key]
         return None
 
-    def get_info(self):
+    def _get_info(self):
         """
 
         :return:    Object info
@@ -143,6 +157,31 @@ class L0Sampler:
             'l0-sampler k': self.k
         }
 
-        result = {**result, **self.recoverers[0].get_info()}
+        result = {**result, **self.recoverers[0]._get_info()}
 
         return result
+
+    def add(self, another_l0_sampler):
+        """
+            Combines two l0-samplers by adding them.
+
+            !Assuming they have the same hash functions. (This should hold
+            if they were initialized with the same random bits)
+
+        Time Complexity
+            O(log(n)**4)
+
+        :param another_l0_sampler:  l0-sampler to add.
+        :type another_l0_sampler:   L0Sampler
+        :return:
+        :rtype:     None
+        """
+
+        if self.n != another_l0_sampler.n:
+            raise ValueError('l0-samplers are not compatible')
+        if self.init_seed is None or another_l0_sampler.init_seed is None or\
+           self.init_seed != another_l0_sampler.init_seed:
+            raise ValueError('samplers are not initialized from the same random bits')
+
+        for l in range(self.levels):
+            self.recoverers[l].add(another_l0_sampler.recoverers[l])

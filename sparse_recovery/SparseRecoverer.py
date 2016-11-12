@@ -1,7 +1,6 @@
-__author__ = 'nikita'
 from sparse_recovery.OneSparseRecoverer import OneSparseRecoverer
 from tools.hash_function import pick_k_ind_hash_function
-from numpy import log, zeros
+from math import log
 from tools.validation import check_in_range, check_type
 
 
@@ -39,6 +38,9 @@ class SparseRecoverer:
             Initializes log(s/delta) rows and 2*s columns table and
             2-independent hash function for every row.
 
+        Time Complexity
+            O(s * log(s / delta) * log(n)**5)
+
         :param n:       Length of estimating vector.
         :type n:        int
         :param s:       Degree of required sparsity.
@@ -53,8 +55,9 @@ class SparseRecoverer:
         check_in_range(1, n, s)
 
         self.n = n
-
+        self.delta = delta
         self.sparse_degree = s
+
         self.columns = 2*s
         self.rows = int(log(s / delta))
 
@@ -82,6 +85,7 @@ class SparseRecoverer:
         self.sum_of_vector += Delta
 
         for l in range(self.rows):
+            print(self.hash_function[l](i))
             self.R[l][self.hash_function[l](i)].update(i, Delta)
 
     def recover(self):
@@ -114,7 +118,7 @@ class SparseRecoverer:
         else:
             return result
 
-    def get_info(self):
+    def _get_info(self):
         """
 
         :return:    Object info.
@@ -127,3 +131,28 @@ class SparseRecoverer:
         }
 
         return result
+
+    def add(self, another_s_sparse_recoverer):
+        """
+            Combines to s-sparse recoverers by adding.
+
+            !Assuming they have the same hash functions.
+
+        Time Complexity
+            O(s*log(s / delta)*log(n)**2)
+
+        :param another_s_sparse_recoverer:  s-sparse recoverer to add.
+        :type another_s_sparse_recoverer:   SparseRecoverer
+        :return:
+        :rtype:
+        """
+
+        if self.n != another_s_sparse_recoverer.n or\
+           self.sparse_degree != another_s_sparse_recoverer.sparse_degree or\
+           self.delta != another_s_sparse_recoverer.delta:
+            raise ValueError('s-sparse recoverers are not compatible')
+        else:
+            self.sum_of_vector += another_s_sparse_recoverer.sum_of_vector
+            for i in range(self.rows):
+                for j in range(self.columns):
+                    self.R[i][j].add(another_s_sparse_recoverer.R[i][j])
