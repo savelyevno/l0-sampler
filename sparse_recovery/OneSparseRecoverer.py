@@ -77,19 +77,15 @@ class OneSparseRecoverer:
         Time Complexity
             O(log(n)**3)
 
-        :return:    False if a_i is empty,
-                    True if it contains more than one non-zero element
-                    a_i, otherwise.
-        :rtype:     (int, int) or bool
+        :return:    On success return a_i, otherwise FAIL.
+        :rtype:     (int, int) or None
         """
 
-        if self.fi == 0:
-            return False
-        elif self.iota % self.fi == 0 and self.iota / self.fi > 0 and \
+        if self.fi != 0 and self.iota % self.fi == 0 and self.iota / self.fi > 0 and \
                 self.tau == self.fi * pow(self.z, int(self.iota / self.fi), self.p) % self.p:
             return int(self.iota / self.fi) - 1, self.fi
         else:
-            return True
+            return None
 
     def add(self, another_one_sparse_recoverer):
         """

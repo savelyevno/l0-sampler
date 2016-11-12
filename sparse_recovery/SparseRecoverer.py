@@ -65,8 +65,6 @@ class SparseRecoverer:
 
         self.R = [[OneSparseRecoverer(self.n) for j in range(self.columns)] for i in range(self.rows)]
 
-        self.sum_of_vector = 0
-
     def update(self, i, Delta):
         """
             Iterates through rows and updates corresponding cells.
@@ -82,10 +80,7 @@ class SparseRecoverer:
         :rtype:         None
         """
 
-        self.sum_of_vector += Delta
-
         for l in range(self.rows):
-            print(self.hash_function[l](i))
             self.R[l][self.hash_function[l](i)].update(i, Delta)
 
     def recover(self):
@@ -107,14 +102,11 @@ class SparseRecoverer:
             for j in range(self.columns):
                 one_sparse_recovery_result = self.R[i][j].recover()
 
-                if not isinstance(one_sparse_recovery_result, bool):
+                if one_sparse_recovery_result is not None:
                     result[one_sparse_recovery_result[0]] = one_sparse_recovery_result[1]
 
-        sum_of_recovered_vector = sum(result.values())
         if len(result) == 0:
-            return False
-        elif len(result) > self.sparse_degree or sum_of_recovered_vector != self.sum_of_vector:
-            return True
+            return None
         else:
             return result
 

@@ -29,6 +29,37 @@ def test1():
 
 
 def test2():
+    n = int(1e2)
+    amplitude = 10
+
+    timer = Timer()
+    timer.start()
+
+    l0_sampler = L0Sampler(n)
+    print('size of l0-sampler:', asizeof.asizeof(l0_sampler) >> 13, 'KB')
+    print(l0_sampler._get_info())
+
+    indexes = [i for i in range(n)]
+    values = [random.randint(1, 10*amplitude) for i in range(0, n)]
+    random.shuffle(indexes)
+
+    print('build time:', timer.stop())
+    timer.start()
+
+    for i in range(n):
+        pos = indexes[i]
+        value = values[i]
+
+        print('added', pos)
+
+        l0_sampler.update(pos, value)
+
+        print('\tsampled', l0_sampler.get_sample()[0])
+
+    print('update time:', timer.stop())
+
+
+def test3():
     a = L0Sampler(2, 0)
     b = L0Sampler(2, 0)
 
