@@ -91,10 +91,9 @@ class SparseRecoverer:
         Time Complexity
             O(s * log(s / delta) * log(n)**3)
 
-        :return:    If resulting dictionary is empty return False, if it contains
-        more than s elements or sum of retrieved vector != correct sum of the vector
-        returns True, otherwise return this dictionary.
-        :rtype:     dict or bool
+        :return:    If resulting dictionary is not empty returns it, otherwise
+                    returns None.
+        :rtype:     dict or None
         """
 
         result = {}
