@@ -14,13 +14,13 @@ def test1():
 
     l0_sampler = L0Sampler(n)
     print('size of l0-sampler:', asizeof.asizeof(l0_sampler) >> 13, 'KB')
-    print(l0_sampler.get_info())
+    print(l0_sampler._get_info())
 
     print('build time:', timer.stop())
     timer.start()
 
     for i in range(k):
-        pos = random.randint(0, n)
+        pos = random.randint(0, n - 1)
         value = random.randint(-amplitude, 10*amplitude)
 
         l0_sampler.update(pos, value)
