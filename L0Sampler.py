@@ -33,7 +33,7 @@ class L0Sampler:
         """
 
         Time Complexity:
-            O(log(n)**8)
+            O(log(n)**7)
 
         :param n:           Length of vector a.
         :type n:            int
@@ -72,7 +72,7 @@ class L0Sampler:
             Update of type a_i += Delta.
 
             Time Complexity
-                O(log(n)**5)
+                O(log(n)**3)
 
         :param i:       Index of update.
         :type i:        int
@@ -96,7 +96,7 @@ class L0Sampler:
             (This one is described in the paper.)
 
             Time Complexity
-                O(log(n)**6)
+                O(log(n)**4)
 
         :return:    Return tuple (i, a_i) or FAIL.
         :rtype:     None or (int, int)
@@ -125,7 +125,7 @@ class L0Sampler:
             Get l0-sample.
 
             Time Complexity
-                O(log(n)**6)
+                O(log(n)**4)
 
         :return:    Return tuple (i, a_i) or FAIL.
         :rtype:     None or (int, int)
@@ -169,7 +169,7 @@ class L0Sampler:
             if they were initialized with the same random bits)
 
         Time Complexity
-            O(log(n)**4)
+            O(log(n)**3)
 
         :param another_l0_sampler:  l0-sampler to add.
         :type another_l0_sampler:   L0Sampler

@@ -39,7 +39,7 @@ class SparseRecoverer:
             2-independent hash function for every row.
 
         Time Complexity
-            O(s * log(s / delta) * log(n)**5)
+            O(s * log(s / delta) * log(n)**4)
 
         :param n:       Length of estimating vector.
         :type n:        int
@@ -70,7 +70,7 @@ class SparseRecoverer:
             Iterates through rows and updates corresponding cells.
 
         Time Complexity
-            O(log(s / delta) * log(n)**3)
+            O(log(s / delta) * log(n))
 
         :param i:       Index of update.
         :type i:        int
@@ -89,7 +89,7 @@ class SparseRecoverer:
             Recovered elements are merged into a dictionary to avoid duplicates.
 
         Time Complexity
-            O(s * log(s / delta) * log(n)**3)
+            O(s * log(s / delta) * log(n))
 
         :return:    If resulting dictionary is not empty returns it, otherwise
                     returns None.
@@ -130,7 +130,7 @@ class SparseRecoverer:
             !Assuming they have the same hash functions.
 
         Time Complexity
-            O(s*log(s / delta)*log(n)**2)
+            O(s*log(s / delta))
 
         :param another_s_sparse_recoverer:  s-sparse recoverer to add.
         :type another_s_sparse_recoverer:   SparseRecoverer
@@ -143,7 +143,6 @@ class SparseRecoverer:
            self.delta != another_s_sparse_recoverer.delta:
             raise ValueError('s-sparse recoverers are not compatible')
         else:
-            self.sum_of_vector += another_s_sparse_recoverer.sum_of_vector
             for i in range(self.rows):
                 for j in range(self.columns):
                     self.R[i][j].add(another_s_sparse_recoverer.R[i][j])

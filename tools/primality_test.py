@@ -18,7 +18,7 @@ def is_prime(n):
         Probability of such event is not greater than 1 / n**2.
 
     Time complexity
-        O(log(n)**4)
+        O(log(n)**3)
 
     References
         https://en.wikipedia.org/wiki/Miller–Rabin_primality_test
@@ -75,7 +75,7 @@ def get_next_prime(n):
     :rtype:     int
 
     Time complexity
-        O(log(n)**5)
+        O(log(n)**4)
 
     """
 

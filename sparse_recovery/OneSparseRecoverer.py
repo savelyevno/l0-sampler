@@ -35,7 +35,7 @@ class OneSparseRecoverer:
         """
 
         Time Complexity
-            O(log(n)**5)
+            O(log(n)**4)
 
         :param n:   Size of array.
         :type n:    int
@@ -56,7 +56,7 @@ class OneSparseRecoverer:
             Update of type a_i += Delta.
 
         Time Complexity
-            O(log(n)**3)
+            O(log(n))
 
         :param i:       Index of an update.
         :type i:        int
@@ -75,7 +75,7 @@ class OneSparseRecoverer:
             Attempt to recover an element.
 
         Time Complexity
-            O(log(n)**3)
+            O(log(n))
 
         :return:    On success return a_i, otherwise FAIL.
         :rtype:     (int, int) or None
@@ -92,7 +92,7 @@ class OneSparseRecoverer:
             Combines two 1-sparse recoverers by adding them.
 
         Time Complexity
-            O(log(n)**2)
+            O(1)
 
         :param another_one_sparse_recoverer:
         :type another_one_sparse_recoverer:     OneSparseRecoverer
