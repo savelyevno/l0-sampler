@@ -1,4 +1,4 @@
-from tools.primality_test import get_next_prime
+from tools.primality_test import prime_getter
 from random import randint
 
 
@@ -31,6 +31,9 @@ class OneSparseRecoverer:
             Society for Industrial and Applied Mathematics, 2013.
             https://pdfs.semanticscholar.org/b0f3/336c82b8a9d9a70d7cf187eea3f6dbfd1cdf.pdf
     """
+
+    __slots__ = 'n', 'p', 'z', 'iota', 'fi', 'tau'
+
     def __init__(self, n):
         """
 
@@ -43,7 +46,7 @@ class OneSparseRecoverer:
 
         self.n = n
 
-        self.p = get_next_prime(n*n)
+        self.p = prime_getter.get_next_prime(n*100)
 
         self.z = randint(1, self.p - 1)
 
@@ -81,9 +84,9 @@ class OneSparseRecoverer:
         :rtype:     (int, int) or None
         """
 
-        if self.fi != 0 and self.iota % self.fi == 0 and self.iota / self.fi > 0 and \
-                self.tau == self.fi * pow(self.z, int(self.iota / self.fi), self.p) % self.p:
-            return int(self.iota / self.fi) - 1, self.fi
+        if self.fi != 0 and self.iota % self.fi == 0 and self.iota // self.fi > 0 and \
+                self.tau == self.fi * pow(self.z, self.iota // self.fi, self.p) % self.p:
+            return self.iota // self.fi - 1, self.fi
         else:
             return None
 
@@ -102,8 +105,34 @@ class OneSparseRecoverer:
 
         if self.z != another_one_sparse_recoverer.z or self.p != another_one_sparse_recoverer.p or\
            self.n != another_one_sparse_recoverer.n:
+            print(self)
+            print(another_one_sparse_recoverer)
             raise ValueError('1-sparse recoverers are not compatible')
 
         self.iota += another_one_sparse_recoverer.iota
         self.fi += another_one_sparse_recoverer.fi
         self.tau = (self.tau + another_one_sparse_recoverer.tau) % self.p
+
+    def subtract(self, another_one_sparse_recoverer):
+        """
+            Combines two 1-sparse recoverers by subtracting them.
+
+        Time Complexity
+            O(1)
+
+        :param another_one_sparse_recoverer:
+        :type another_one_sparse_recoverer:     OneSparseRecoverer
+        :return:
+        :rtype:     None
+        """
+
+        if self.z != another_one_sparse_recoverer.z or self.p != another_one_sparse_recoverer.p or\
+           self.n != another_one_sparse_recoverer.n:
+            raise ValueError('1-sparse recoverers are not compatible')
+
+        self.iota -= another_one_sparse_recoverer.iota
+        self.fi -= another_one_sparse_recoverer.fi
+        self.tau = (self.tau - another_one_sparse_recoverer.tau) % self.p
+
+    def __str__(self):
+        return ", ".join(map(str, [self.n, self.p, self.z, self.iota, self.fi, self.tau]))

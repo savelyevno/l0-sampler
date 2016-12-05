@@ -1,6 +1,5 @@
-from tools.primality_test import get_next_prime
-from random import randint
-from tools.validation import check_type
+from tools.primality_test import prime_getter
+import random
 
 
 def pick_k_ind_hash_function(n, w, k):
@@ -20,7 +19,7 @@ def pick_k_ind_hash_function(n, w, k):
     Notes
         Firstly, finds smallest prime p >= n. Then constructs array of
         coefficients a from Z_p, where a[0] != 0. Let
-        h(x) = a[0] * x**(k - 1) + ... + a[k - 2] * x + a[k - 1] mod p mod w.
+        h(x) = a[0] + ... + a[k - 2] * x^(k - 2) + a[k - 1] * x^(k - 1) mod p mod w.
 
     Time complexity
         Constructed hash function's complexity is O(k * log(x)).
@@ -30,20 +29,15 @@ def pick_k_ind_hash_function(n, w, k):
 
     """
 
-    check_type(n, int)
-    check_type(w, int)
-    check_type(k, int)
+    p = prime_getter.get_next_prime(max(n, w))
 
-    p = get_next_prime(max(n, w))
-
-    a = [randint(0, p - 1) for i in range(k)]
-    a[0] = randint(1, p - 1)
+    a = tuple(random.randint(i == k - 1, p - 1) for i in range(k))
 
     def h(x):
         res = 0
         pow_x = 1
         for i in range(k):
-            res = (res + pow_x * a[k - i - 1]) % p
+            res = (res + pow_x * a[i]) % p
             pow_x = (pow_x * x) % p
         return res % w
 
