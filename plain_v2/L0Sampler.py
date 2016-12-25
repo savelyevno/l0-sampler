@@ -54,7 +54,7 @@ class L0Sampler:
         self.n = n
         self.levels = ceil(log2(n))
 
-        k = 10
+        k = 4
         self.eps = 1/k
         self.delta = 1/k
 
@@ -185,7 +185,7 @@ class L0Sampler:
             raise ValueError('samplers are not initialized from the same random bits')
 
         for l in range(self.levels):
-            self.recoverers[l].add(another_l0_sampler.recoverers[l])
+            self.recoverers[l].add_another_sketch(another_l0_sampler.recoverers[l])
 
     def subtract(self, another_l0_sampler):
         """

@@ -143,7 +143,7 @@ class SparseRecoverer:
         else:
             for i in range(self.rows):
                 for j in range(self.columns):
-                    self.R[i][j].add(another_s_sparse_recoverer.R[i][j])
+                    self.R[i][j].add_another_sketch(another_s_sparse_recoverer.R[i][j])
 
     def subtract(self, another_s_sparse_recoverer):
         """
